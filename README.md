@@ -47,18 +47,5 @@ But using a container gives a controlled, reproducible environment
 
 
 ---------------------------------------------
+![Screenshot_2025-12-09-21-00-15-49_96b26121e545231a3c569311a54cda96](https://github.com/user-attachments/assets/0bd7038a-e6a7-4263-a85f-84f281a9e28b)
 
-5️⃣ Visualizing the flow
-
-GitHub (Code) 
-      │
-      ▼
-Jenkins (Master)
-      │
-      ├─> Node / Docker Container (Environment)
-      │       ├─ Fetch code
-      │       ├─ Install dependencies
-      │       ├─ Build
-      │       └─ Generate artifact
-      ▼
-Deploy (Server / Kubernetes / Cloud)
