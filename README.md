@@ -29,12 +29,15 @@ When a pipeline runs:
 Example step:
 
 sh 'npm install'
+
 Jenkins tells the node: “run this command in your environment”
+
 Node executes the command → downloads packages → builds project
 
 ----------------------------------------------
 
 Jenkins spins up a container → this container is the environment for the job
+
 Runs all commands there → container destroyed after job
 
 ----------------------------------------------
