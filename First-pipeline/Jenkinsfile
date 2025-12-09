@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Pulling code from GitHub..."
+                git url: 'https://github.com/your-username/your-repo.git', branch: 'main'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Running build step..."
+                sh 'echo "This is a sample build command"'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo "Running tests..."
+                sh 'echo "Running dummy tests - All tests passed!"'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploy stage (placeholder)..."
+                sh 'echo "Deployment simulation completed."'
+            }
+        }
+    }
+}
