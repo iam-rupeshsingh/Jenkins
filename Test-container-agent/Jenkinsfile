@@ -1,0 +1,20 @@
+pipeline {
+    agent {
+        docker {
+            image 'alpine'              // lightweight test image
+            args '-u root:root'         // ensures no permission issues inside container
+        }
+    }
+
+    stages {
+        stage('Verify Docker Agent') {
+            steps {
+                sh 'echo "Inside Docker Agent Container"'
+                sh 'whoami'
+                sh 'apk add --no-cache curl'
+                sh 'curl --version'
+                sh 'echo "Docker agent is working fine on Jenkins master!"'
+            }
+        }
+    }
+}
