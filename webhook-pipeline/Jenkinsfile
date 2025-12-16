@@ -1,0 +1,36 @@
+pipeline {
+    agent {
+        docker {
+            image 'ubuntu:22.04'
+            label 'jenkins-agent'     // your Jenkins agent label
+            args '-u root'
+        }
+    }
+
+    stages {
+        stage('Verify Docker Container') {
+            steps {
+                sh '''
+                  echo "Running inside Docker on Jenkins agent"
+                  hostname
+                  cat /etc/os-release
+                '''
+            }
+        }
+
+        stage('Sample Task') {
+            steps {
+                sh '''
+                  echo "Pipeline executed successfully"
+                  date
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Job finished – container removed automatically'
+        }
+    }
+}
