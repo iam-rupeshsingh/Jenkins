@@ -21,8 +21,9 @@ pipeline {
         stage('Sample Task') {
             steps {
                 sh '''
-                  echo "Pipeline executed successfully"
+                  echo "Pipeline executed successfully" >> log.txt
                   date
+                  sleep 10
                 '''
             }
         }
