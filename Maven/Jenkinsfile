@@ -1,0 +1,16 @@
+pipeline {
+    agent { label 'jenkins-agent' }
+
+    stages {
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+    }
+
+    post {
+        success { echo 'Build and tests completed successfully!' }
+        failure { echo 'Build or tests failed.' }
+    }
+}
