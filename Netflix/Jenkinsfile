@@ -51,31 +51,6 @@ pipeline {
             }
         }
 
-        stage('OWASP Dependency Check') {
-            steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                    dependencyCheck additionalArguments: '''
-                        --scan .
-                        --format XML
-                        --out .
-                        --disableYarnAudit
-                        --disableNodeAudit
-                    ''', odcInstallation: 'DP-Check'
-                }
-
-                script {
-                    if (fileExists('dependency-check-report.xml')) {
-                        dependencyCheckPublisher(
-                            pattern: 'dependency-check-report.xml',
-                            stopBuild: false
-                        )
-                    } else {
-                        echo "OWASP report not generated"
-                    }
-                }
-            }
-        }
-
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
@@ -122,7 +97,7 @@ pipeline {
 
         stage('Archive Reports') {
             steps {
-                archiveArtifacts artifacts: '*.txt,*.xml', allowEmptyArchive: true
+                archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
             }
         }
     }
