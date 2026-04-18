@@ -78,7 +78,7 @@ pipeline {
 
         stage('Trivy FS Scan') {
             steps {
-                sh "trivy fs --format html -o trivyfs.html ."
+                sh "trivy fs --format template --template '@html.tpl' -o trivyfs.html ."
             }
         }
 
