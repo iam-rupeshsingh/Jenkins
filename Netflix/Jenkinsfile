@@ -78,7 +78,10 @@ pipeline {
 
         stage('Trivy FS Scan') {
             steps {
-                sh "trivy fs --format template --template '@html.tpl' -o trivyfs.html ."
+                sh """
+                wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+                trivy fs --format template --template "@html.tpl" -o trivyfs.html .
+                """
             }
         }
 
