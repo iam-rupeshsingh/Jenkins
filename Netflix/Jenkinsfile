@@ -76,12 +76,9 @@ pipeline {
             }
         }
 
-        stage('Trivy FS Scan') {
+        stage('TRIVY FS SCAN') {
             steps {
-                sh """
-                wget https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
-                trivy fs --format template --template "@html.tpl" -o trivyfs.html .
-                """
+                sh "trivy fs . > trivyfs.txt"
             }
         }
 
@@ -108,13 +105,13 @@ pipeline {
             }
         }
 
-        stage('Trivy Image Scan') {
+        stage("TRIVY IMAGE SCAN") {
             steps {
-                sh "trivy image --format html -o trivyimage.html $IMAGE_NAME"
+                sh "trivy image $IMAGE_NAME > trivyimage.txt"
             }
         }
 
-        stage('Deploy to Container') {
+        stage('Deploy Container') {
             steps {
                 sh """
                 docker rm -f netflix || true
@@ -125,7 +122,7 @@ pipeline {
 
         stage('Archive Reports') {
             steps {
-                archiveArtifacts artifacts: '*.html,*.xml', allowEmptyArchive: true
+                archiveArtifacts artifacts: '*.txt,*.xml', allowEmptyArchive: true
             }
         }
     }
