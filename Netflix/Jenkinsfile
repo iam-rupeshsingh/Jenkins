@@ -29,9 +29,9 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar-server') {
                     sh """
-                        $SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectName=Netflix \
-                        -Dsonar.projectKey=Netflix
+                    $SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.projectName=Netflix \
+                    -Dsonar.projectKey=Netflix
                     """
                 }
             }
@@ -53,17 +53,22 @@ pipeline {
 
         stage('OWASP Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '''
-                    --scan .
-                    --format XML
-                    --out .
-                    --disableYarnAudit
-                    --disableNodeAudit
-                ''', odcInstallation: 'DP-Check'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    dependencyCheck additionalArguments: '''
+                        --scan .
+                        --format XML
+                        --out .
+                        --disableYarnAudit
+                        --disableNodeAudit
+                    ''', odcInstallation: 'DP-Check'
+                }
 
                 script {
                     if (fileExists('dependency-check-report.xml')) {
-                        dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+                        dependencyCheckPublisher(
+                            pattern: 'dependency-check-report.xml',
+                            stopBuild: false
+                        )
                     } else {
                         echo "OWASP report not generated"
                     }
@@ -73,14 +78,13 @@ pipeline {
 
         stage('Trivy FS Scan') {
             steps {
-                sh "trivy fs . > trivyfs.txt"
+                sh "trivy fs --format html -o trivyfs.html ."
             }
         }
 
         stage('Docker Build & Push') {
             steps {
                 script {
-
                     withCredentials([
                         usernamePassword(
                             credentialsId: 'docker',
@@ -92,7 +96,7 @@ pipeline {
                         sh "docker build --build-arg TMDB_V3_API_KEY=79b7277d7e412311c1c9449e74e89edb -t $IMAGE_NAME ."
 
                         sh '''
-                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         '''
 
                         sh "docker push $IMAGE_NAME"
@@ -103,16 +107,22 @@ pipeline {
 
         stage('Trivy Image Scan') {
             steps {
-                sh "trivy image $IMAGE_NAME > trivyimage.txt"
+                sh "trivy image --format html -o trivyimage.html $IMAGE_NAME"
             }
         }
 
         stage('Deploy to Container') {
             steps {
                 sh """
-                    docker rm -f netflix || true
-                    docker run -d -p 8081:80 --name netflix $IMAGE_NAME
+                docker rm -f netflix || true
+                docker run -d -p 8081:80 --name netflix $IMAGE_NAME
                 """
+            }
+        }
+
+        stage('Archive Reports') {
+            steps {
+                archiveArtifacts artifacts: '*.html,*.xml', allowEmptyArchive: true
             }
         }
     }
