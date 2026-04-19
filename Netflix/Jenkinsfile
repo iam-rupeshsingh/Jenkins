@@ -71,7 +71,7 @@ pipeline {
                         sh "docker build --build-arg TMDB_V3_API_KEY=79b7277d7e412311c1c9449e74e89edb -t $IMAGE_NAME ."
 
                         sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                         '''
 
                         sh "docker push $IMAGE_NAME"
@@ -89,8 +89,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 sh """
-                docker rm -f netflix || true
-                docker run -d -p 8081:80 --name netflix $IMAGE_NAME
+                    docker rm -f netflix || true
+                    docker run -d -p 8081:80 --name netflix $IMAGE_NAME
                 """
             }
         }
@@ -99,6 +99,16 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
             }
+        }
+    }
+
+    post {
+        always {
+            emailext(
+                subject: "Build Result: ${currentBuild.currentResult} - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build finished with status: ${currentBuild.currentResult}\nCheck details: ${env.BUILD_URL}",
+                to: "singhkumarrupesh333@gmail.com"
+            )
         }
     }
 }
